@@ -1,0 +1,33 @@
+snippet setup.cfg "Description" b
+[metadata]
+name = ${1:myproject}
+description = Enter a one line description
+description-file =
+    README.md
+author = Stephen Pearson
+author-email = stephen@hpe.com
+license = Apache-2.0
+classifier =
+    Environment :: HPE MPC
+    Intended Audience :: System Administrators
+    License :: OSI Approved :: Apache Software License
+	  Operating System :: POSIX :: Linux
+	  Programming Language :: Python
+	  Programming Language :: Python :: 3
+
+[files]
+packages =
+  $1
+
+[entry_points]
+console_scripts =
+	  $1 = $1.cmd.$1:main
+
+[pep257]
+ignore = D104
+
+# Uncomment for local pip server
+#[easy_install]
+#find_links = http://pip:password@localhost:8000/pypi
+#index-url = http://pip:password@localhost:8000/simple/
+endsnippet
