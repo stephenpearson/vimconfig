@@ -62,7 +62,7 @@ set expandtab
 syntax enable
 syntax on
 " set background=dark
-colorscheme Jellybeans
+colorscheme jellybeans
 let g:jellybeans_use_lowcolor_black = 0
 
 let g:ctrlp_working_path_mode = 2
