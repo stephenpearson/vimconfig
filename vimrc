@@ -22,6 +22,7 @@ Plugin 'racer-rust/vim-racer'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'davidhalter/jedi-vim'
+Plugin 'hashivim/vim-vagrant'
 
 set hidden
 let g:racer_cmd = "/Users/stephen/Code/rust/racer/target/release/racer"
