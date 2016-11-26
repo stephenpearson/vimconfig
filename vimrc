@@ -21,8 +21,8 @@ Plugin 'rust-lang/rust.vim'
 Plugin 'racer-rust/vim-racer'
 Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
-Plugin 'davidhalter/jedi-vim'
 Plugin 'hashivim/vim-vagrant'
+Plugin 'fatih/vim-go'
 
 set hidden
 let g:racer_cmd = "/Users/stephen/Code/rust/racer/target/release/racer"
@@ -34,10 +34,18 @@ call vundle#end()            " required
 " To ignore plugin indent changes, instead use:
 filetype plugin on
 
+" For OSX
+if has('gui_running')
+  set guifont=Monaco\ for\ Powerline:h14
+endif
+
+" On Linux, prefer Droid Sans
+" Obtain fonts from here: https://github.com/powerline/fonts.git
 if has("gui_gtk2")
-  set guifont=Monaco\ 14
-else
-  set guifont=Monaco:h14
+  set guifont=Droid\ Sans\ Mono\ for\ Powerline\ 14
+endif
+if has("gui_gtk3")
+  set guifont=Droid\ Sans\ Mono\ for\ Powerline\ 14
 endif
 
 let g:airline_powerline_fonts = 1
@@ -87,10 +95,6 @@ map <leader>cd :cd %:h
 set noerrorbells visualbell t_vb=
 if has('autocmd')
   autocmd GUIEnter * set visualbell t_vb=
-endif
-
-if has('gui_running')
-  set guifont=Monaco\ for\ Powerline:h14
 endif
 
 let &colorcolumn=join(range(81,999),",")
