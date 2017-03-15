@@ -103,3 +103,8 @@ appropriate syntax is as follows.
 :raises: AttributeError, KeyError
 """
 endsnippet
+
+snippet fopen "Open a file" b
+with open("$1", "r") as f:
+    for line in f:
+endsnippet
