@@ -24,6 +24,7 @@ Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'hashivim/vim-vagrant'
 Plugin 'fatih/vim-go'
+Plugin 'hashivim/vim-terraform'
 
 let g:rustfmt_autosave = 1
 let g:rustfmt_emit_files = 1
