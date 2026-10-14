@@ -2,6 +2,11 @@ set nocompatible              " be iMproved, required
 filetype off                  " required
 set encoding=utf-8
 
+" Prefer the Python Vim was built with, not a project venv
+if has('python3')
+  let g:python3_host_prog = exepath('python3')
+endif
+
 " set the runtime path to include Vundle and initialize
 set rtp+=~/.vim/bundle/Vundle.vim
 call vundle#begin()
