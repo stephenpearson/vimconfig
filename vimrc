@@ -26,6 +26,8 @@ Plugin 'hashivim/vim-vagrant'
 Plugin 'fatih/vim-go'
 Plugin 'hashivim/vim-terraform'
 
+let g:filetype_pl="prolog"
+
 let g:rustfmt_autosave = 1
 let g:rustfmt_emit_files = 1
 let g:rustfmt_fail_silently = 0
@@ -118,6 +120,45 @@ map <leader>b :CtrlPBuffer<CR>
 map <leader>d :execute 'NERDTreeToggle ' . getcwd()<CR>
 map <leader>cd :cd %:h
 
+function! ExtractLinesToFile() abort
+  let l:target = input('Extract lines to: ', '', 'file')
+  if empty(l:target)
+    echo 'Cancelled'
+    return
+  endif
+
+  let l:first = line("'<")
+  let l:last  = line("'>")
+
+  " Write first: if this fails, the source remains untouched.
+  execute l:first . ',' . l:last . 'write ' . fnameescape(l:target)
+
+  " Then remove the successfully extracted lines.
+  execute l:first . ',' . l:last . 'delete'
+endfunction
+
+xnoremap <leader>x :<C-u>call ExtractLinesToFile()<CR>
+
+function! UnindentVisualToMargin() range abort
+  let l:widths = []
+
+  for l:lnum in range(a:firstline, a:lastline)
+    let l:text = getline(l:lnum)
+    if l:text =~# '\S'            " ignore blank lines
+      call add(l:widths, strlen(matchstr(l:text, '^ *')))
+    endif
+  endfor
+
+  if empty(l:widths)
+    return
+  endif
+
+  let l:amount = min(l:widths)
+  execute a:firstline . ',' . a:lastline . 's/^ \{' . l:amount . '}//'
+endfunction
+
+xnoremap <leader>< :<C-u>'<,'>call UnindentVisualToMargin()<CR>
+
 " let g:netrw_keepdir=0
 
 set noerrorbells visualbell t_vb=
@@ -125,7 +166,7 @@ if has('autocmd')
   autocmd GUIEnter * set visualbell t_vb=
 endif
 
-let &colorcolumn=join(range(81,999),",")
+"let &colorcolumn=join(range(81,999),",")
 let @u='i# -*- coding: utf-8 -*-'
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
@@ -172,3 +213,19 @@ nnoremap <leader>hs :split<cr>
 
 nmap <F1> :echo<CR>
 imap <F1> <C-o>:echo<CR>
+
+  if exists('&t_ut')
+    set t_ut=
+  endif
+
+highlight Normal ctermbg=NONE guibg=NONE
+highlight NormalNC ctermbg=NONE guibg=NONE
+highlight EndOfBuffer ctermbg=NONE guibg=NONE
+highlight NonText ctermbg=NONE guibg=NONE
+highlight SignColumn ctermbg=NONE guibg=NONE
+
+" JSON indentation
+autocmd FileType json setlocal shiftwidth=2 tabstop=2 expandtab
+
+" Reindent the whole JSON buffer with \j
+autocmd FileType json nnoremap <buffer> <leader>j :%!prettier --parser json<CR>
