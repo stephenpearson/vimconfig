@@ -25,11 +25,32 @@ Plugin 'scrooloose/nerdtree'
 Plugin 'vim-scripts/sparql.vim'
 Plugin 'rust-lang/rust.vim'
 Plugin 'racer-rust/vim-racer'
-Plugin 'SirVer/ultisnips'
 Plugin 'honza/vim-snippets'
 Plugin 'hashivim/vim-vagrant'
 Plugin 'fatih/vim-go'
 Plugin 'hashivim/vim-terraform'
+Plugin 'hrsh7th/vim-vsnip'
+Plugin 'hrsh7th/vim-vsnip-integ'
+
+" All of your Plugins must be added before the following line
+call vundle#end()            " required
+filetype plugin on
+
+let mapleader=","
+let maplocalleader=","
+
+" vim-vsnip
+let g:vsnip_snippet_dir = expand('~/.vim/snippets')
+
+" Expand or jump forward
+imap <expr> <Tab>   vsnip#expandable() ? '<Plug>(vsnip-expand)' : vsnip#jumpable(1) ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+smap <expr> <Tab>   vsnip#jumpable(1)  ? '<Plug>(vsnip-jump-next)' : '<Tab>'
+
+" Jump backward
+imap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
+smap <expr> <S-Tab> vsnip#jumpable(-1) ? '<Plug>(vsnip-jump-prev)' : '<S-Tab>'
+
+nnoremap <leader>se :VsnipOpen<cr>
 
 let g:filetype_pl="prolog"
 
@@ -37,37 +58,20 @@ let g:rustfmt_autosave = 1
 let g:rustfmt_emit_files = 1
 let g:rustfmt_fail_silently = 0
 
-inoremap <silent><expr> <TAB>
-      \ pumvisible() ? "\<C-n>" :
-      \ <SID>check_back_space() ? "\<TAB>" :
-      \ coc#refresh()
-inoremap <expr><S-TAB> pumvisible() ? "\<C-p>" : "\<C-h>"
-
-function! s:check_back_space() abort
-  let col = col('.') - 1
-  return !col || getline('.')[col - 1]  =~# '\s'
-endfunction
-
-if has('nvim')
-  inoremap <silent><expr> <c-space> coc#refresh()
-else
-  inoremap <silent><expr> <c-@> coc#refresh()
-endif
-
-nmap <silent> gd <Plug>(coc-definition)
-nmap <silent> gy <Plug>(coc-type-definition)
-nmap <silent> gi <Plug>(coc-implementation)
-nmap <silent> gr <Plug>(coc-references)
+" coc mappings removed — delete these lines if you no longer use coc.nvim
+" if has('nvim')
+"   inoremap <silent><expr> <c-space> coc#refresh()
+" else
+"   inoremap <silent><expr> <c-@> coc#refresh()
+" endif
+" nmap <silent> gd <Plug>(coc-definition)
+" nmap <silent> gy <Plug>(coc-type-definition)
+" nmap <silent> gi <Plug>(coc-implementation)
+" nmap <silent> gr <Plug>(coc-references)
 
 set hidden
 let g:racer_cmd = "/Users/stephen/Code/rust/racer/target/release/racer"
 let $RUST_SRC_PATH="/Users/stephen/Code/rust/lang/rust/src"
-
-" All of your Plugins must be added before the following line
-call vundle#end()            " required
-" filetype plugin indent on    " required
-" To ignore plugin indent changes, instead use:
-filetype plugin on
 
 " For OSX
 if has('gui_running')
@@ -89,7 +93,6 @@ if !exists('g:airline_symbols')
  let g:airline_symbols = {}
 endif
 let g:airline_symbols.space = "\ua0"
-" let g:airline#extensions#tabline#enabled = 1
 
 set t_Co=256
 set laststatus=2
@@ -105,7 +108,6 @@ set noautoindent
 set expandtab
 syntax enable
 syntax on
-" set background=dark
 colorscheme jellybeans
 let g:jellybeans_use_lowcolor_black = 0
 
@@ -113,8 +115,6 @@ let g:ctrlp_working_path_mode = 2
 let g:ctrlp_switch_buffer = 0
 let g:ctrlp_max_files = 20000
 
-let mapleader=","
-let maplocalleader=","
 map <leader>tn :tabnew<cr>
 map <leader>te :tabedit
 map <leader>tc :tabclose<cr>
@@ -164,32 +164,17 @@ endfunction
 
 xnoremap <leader>< :<C-u>'<,'>call UnindentVisualToMargin()<CR>
 
-" let g:netrw_keepdir=0
-
 set noerrorbells visualbell t_vb=
 if has('autocmd')
   autocmd GUIEnter * set visualbell t_vb=
 endif
 
-"let &colorcolumn=join(range(81,999),",")
-let @u='i# -*- coding: utf-8 -*-'
 autocmd FileType * setlocal formatoptions-=c formatoptions-=r formatoptions-=o
 
 highlight LineNr ctermfg=white ctermbg=0
 
 " Show ctrl-p hidden file
 let g:ctrlp_show_hidden = 1
-
-" UltiSnips configuration
-let g:UltiSnipsExpandTrigger="<tab>"
-let g:UltiSnipsJumpForwardTrigger="<c-b>"
-let g:UltiSnipsJumpBackwardTrigger="<c-z>"
-" If you want :UltiSnipsEdit to split your window.
-let g:UltiSnipsEditSplit="vertical"
-" Remap because iterm2 doesn't pass c-tab
-let g:UltiSnipsListSnippets="<s-tab>"
-
-map <leader>se :UltiSnipsEdit<cr>
 
 nnoremap <C-Left> :tabprevious<CR>
 nnoremap <C-Right> :tabnext<CR>
@@ -219,9 +204,9 @@ nnoremap <leader>hs :split<cr>
 nmap <F1> :echo<CR>
 imap <F1> <C-o>:echo<CR>
 
-  if exists('&t_ut')
-    set t_ut=
-  endif
+if exists('&t_ut')
+  set t_ut=
+endif
 
 highlight Normal ctermbg=NONE guibg=NONE
 highlight NormalNC ctermbg=NONE guibg=NONE
@@ -234,3 +219,58 @@ autocmd FileType json setlocal shiftwidth=2 tabstop=2 expandtab
 
 " Reindent the whole JSON buffer with \j
 autocmd FileType json nnoremap <buffer> <leader>j :%!prettier --parser json<CR>
+
+function! s:CreateVsnipFromSelection() abort
+  let l:lines = getline("'<", "'>")
+  if empty(l:lines)
+    echo "No selection"
+    return
+  endif
+
+  let l:prefix = input("Snippet prefix: ")
+  if empty(l:prefix)
+    echo "Cancelled"
+    return
+  endif
+
+  let l:desc = input("Description: ", l:prefix)
+  let l:ft = &filetype
+  if empty(l:ft)
+    let l:ft = input("Filetype: ")
+  endif
+  if empty(l:ft)
+    let l:ft = "all"
+  endif
+
+  let l:dir = expand(get(g:, 'vsnip_snippet_dir', '~/.vim/snippets'))
+  call mkdir(l:dir, 'p')
+  let l:file = l:dir . '/' . l:ft . '.json'
+
+  let l:snippets = {}
+  if filereadable(l:file)
+    try
+      let l:snippets = json_decode(join(readfile(l:file), "\n"))
+    catch
+      echoerr "Existing file is not valid JSON — fix it first: " . l:file
+      return
+    endtry
+  endif
+
+  let l:snippets[l:desc] = {
+    \ "prefix": l:prefix,
+    \ "body": l:lines,
+    \ "description": l:desc
+    \ }
+
+  " Write compact, then pretty-print
+  call writefile([json_encode(l:snippets)], l:file)
+  if executable('jq')
+    call system('jq . ' . shellescape(l:file) . ' > ' . shellescape(l:file) . '.tmp && mv ' . shellescape(l:file) . '.tmp ' . shellescape(l:file))
+  elseif executable('python3')
+    call system('python3 -m json.tool ' . shellescape(l:file) . ' > ' . shellescape(l:file) . '.tmp && mv ' . shellescape(l:file) . '.tmp ' . shellescape(l:file))
+  endif
+
+  echo "Saved snippet '" . l:prefix . "' to " . l:file
+endfunction
+
+xnoremap <leader>ns :<C-u>call <SID>CreateVsnipFromSelection()<CR>
