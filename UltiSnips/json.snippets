@@ -1,0 +1,121 @@
+snippet tpnlb "telesis-paas network load balancer"
+    "": {                                     # << Set NLB name
+      "listeners": {
+        "": {                                 # << Set NLB Listener name
+          "port": xx                          # << NLB listening port
+          "backend_set": {
+            "name": "",                       # << Set backend set name
+            "health_checker": {
+              "port": xx,                     # << Healthcheck port between NLB and backend
+              "protocol": "HTTP",             # << Set healthcheck protocol
+              "return_code": 200,             # << Set healthcheck return code if healthy
+              "url_path": "/health/check"     # << Set heathcheck URL path on backend
+            },
+            "instance_pool_backends": {
+              "": {                           # << Set instance pool to forward to
+                "port": xx                    # << Set port between NLB and backend
+              }
+            },
+            "is_preserve_source": true,       # << Should the NLB preserve the source IP of client
+            "target": {
+              "user_service": "",             # << Which user service are we forwarding to?
+              "endpoint": "",                 # << Which endpoint in the user service?
+            }
+          },
+        }
+      },
+      "nlb_ip_version": "IPV4_AND_IPV6",
+      "subnet_id": "ocid1.subnet.oc1.iad.aaaaaaaalnoccjpqguk26bijuczioucnox5iegnmzokvqvszndtzdrffqipq"
+    }
+
+endsnippet
+snippet tpsvc "telesis-paas user service"
+    "": {                                     # << Insert service name here
+      "addressing": {
+        "allocation": "INTERLEAVED",
+        "first_address": "192.168.x.x",       # << Set first pod address here
+        "max_instances_per_variant": 120      # << How many pods for this user svc per node
+      },
+      "forwarding": {
+        "backend_health": {
+          "check": {
+            "url": {
+              "path": "/path/to/healthcheck", # << Update healthcheck path
+              "status_code": 200              # << Set status code
+            }
+          },
+          "port": xx                          # << Set healthcheck port on backend
+        },
+        "endpoints": {                        # Optional NLB endpoints
+          "": {                               # << Set name of NLB endpoint
+            "port": xx                        # << Port that the container listens on
+          }
+        },
+        "local_endpoint": {                   # Optional local endpoint via keepalived
+          "endpoint": "",                     # << Name of local endpoint
+          "address": "192.168.x.x",           # << IP address of local endpoint in keepalived
+          "hostname": ""                      # << Entry to be added to /etc/hosts for local endpoint
+        }
+      },
+      "odo": {
+        "instance_pools": []                  # << Which instance pools host this service?
+      }
+    },
+endsnippet
+snippet tpstack "telesis-paas stack"
+{
+  "region": "us-ashburn-1",                   # << Set the stack's region
+  "compartment_id": "",                       # << Which compartment ocid
+  "cluster_name": "",                         # << A unique name for the cluster
+  "backend_subnet_id": "",                    # << Subnet ocid for backend nodes
+  "instance_pools": {
+    "": {                                     # << Set instance pool name
+      "sizes": [
+        [0, 0, 0],                            # << Set instance pool sizes for each AD/FD
+        [0, 0, 0],                            # << One AD in each row
+        [0, 0, 0]                             # << One FD in each column
+      ],
+      "shape": "VM.Standard.E4.Flex",
+      "memory_in_gbs": 8,
+      "vcpus": 4,
+      "nvmes": 0,
+      "image_id": "",
+      "assign_public_ip": false,
+      "assign_ipv6ip": false
+    }
+  },
+  "user_services": {
+  },
+  "network_load_balancers": {
+  },
+  "network_load_balancer_defaults": {
+    "nlb_ip_version": "IPV4",
+    "is_private": true,
+    "is_preserve_source_destination": false,
+    "is_symmetric_hash_enabled": false,
+    "backend_set": {
+      "policy": "FIVE_TUPLE",
+      "ip_version": "IPV4",
+      "is_preserve_source": true,
+      "is_fail_open": false,
+      "is_instant_failover_enabled": false,
+      "is_instant_failover_tcp_reset_enabled": true,
+      "are_operationally_active_backends_preferred": false,
+      "health_checker": {
+        "protocol": "TCP",
+        "interval_in_millis": 30000,
+        "timeout_in_millis": 3000,
+        "retries": 3
+      }
+    },
+    "listener": {
+      "protocol": "TCP",
+      "ip_version": "IPV4",
+      "is_ppv2enabled": false
+    },
+    "instance_pool_attachment": {
+      "vnic_selection": "PrimaryVnic"
+    }
+  }
+}
+endsnippet
